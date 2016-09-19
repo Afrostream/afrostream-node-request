@@ -32,17 +32,21 @@ request({uri:"http://google.fr", cache: {mode:"fallback"}}).then(...)
 
 ## defaultQueryOptions
 
+```js
 var defaultQueryOptions = {
   param1: param2,
   ...
 };
 var request = require('afrostream-node-request')(defaultQueryOptions);
+```
 
 ## inputQueryOptions
 
+```js
 var request = require('afrostream-node-request')();
 var inputQueryOptions = { json: true, uri: 'http://whatever' }
 request(inputQueryOptions);
+```
 
 ## inputQueryOptions.token
 
@@ -64,7 +68,9 @@ options.forwardedHeaders are a { inputHeaderName: outputHeaderName} list of head
 
 ## Cache
 
+```js
 request({cache: options})  
+```
 
 options object:  
 mode   string    [MANDATORY] fallback
@@ -84,10 +90,12 @@ fallback mode means the cache is only here to prevent "downtimes"
 fallback mode read from cache on error (timeout / statusCode !== 200)
 fallback mode save result in cache whenever 200ok is received.
 
+```
 cache: {
-  redis: redisClient,  // optionnal
-  mode: 'fallback'
+  "redis": redisClient,  // optionnal
+  "mode": "fallback"
 }
+```
 
 ## cache
 
@@ -96,6 +104,7 @@ FIXME: not yet implemented.
 
 # filter
 
+```js
 var filter = function (err, response, body) {
   if (err && err.statusCode >= 400 && err.statusCode <= 500) {
     return; // 4XX are not an error
@@ -103,3 +112,4 @@ var filter = function (err, response, body) {
   return [err, response, body];
 }
 request({uri:"http://google.fr", filter: filter }).then(...)
+```
