@@ -31,7 +31,7 @@ describe('omit key in object... @#! lodash', function () {
       assert(typeof obis.c.b === 'undefined');
     });
 
-    it('should work fgs', function () {
+    it('should work fgs (2)', function () {
       var obis = omit(o, 'e.a.c');
       assert(obis);
       assert(obis.a === 42);
