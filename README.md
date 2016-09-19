@@ -25,7 +25,7 @@ additional features: cache
 
 ```js
 var request = require('afrostream-node-request')();
-request({uri:"http://google.fr", cache: {mode:"fallback"}}).then(...)
+request({uri:"http://google.fr", cache: {mode:"fallback",redis:redisClient}}).then(...)
 ```
 
 # Features
@@ -81,7 +81,7 @@ cache key is:  "request:GET:uri?qs=..."
 
 ```js
 var request = require('afrostream-node-request');
-request({uri:"http://google.fr", cache: "fallback", redis: redis}).then(...)
+request({uri:"http://google.fr", cache: "fallback", redis: redisClient}).then(...)
 ```
 
 ## fallback
@@ -92,7 +92,7 @@ fallback mode save result in cache whenever 200ok is received.
 
 ```
 cache: {
-  "redis": redisClient,  // optionnal
+  "redis": redisClient,
   "mode": "fallback"
 }
 ```
