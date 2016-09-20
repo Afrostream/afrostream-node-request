@@ -1,6 +1,6 @@
 'use strict';
 
-var omit = require('../../omit.js');
+var omit = require('../../mylib/my-omit.js');
 
 var assert = require('better-assert');
 

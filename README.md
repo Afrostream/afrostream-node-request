@@ -102,14 +102,34 @@ cache: {
 FIXME: not yet implemented.
 
 
-# filter
+# filters
+
+a filter is a simple function routing result from OK to ERROR.
+
+## example
+
+example : simple filter, only 5XX http status code are considered as an error:
 
 ```js
-var filter = function (err, response, body) {
-  if (err && err.statusCode >= 400 && err.statusCode <= 500) {
-    return; // 4XX are not an error
+var filter = function (data) {
+  var response = data[0],
+    body = data[1];
+
+  if (response.statusCode >= 500 && response.statusCode < 600) {
+    throw new Error('5XX statusCode are errors');
   }
-  return [err, response, body];
+  return data;
 }
 request({uri:"http://google.fr", filter: filter }).then(...)
+```
+
+## default filter
+
+the default filter is called "200OK".  
+only statusCode === 200 are considered as "OK"
+
+```js
+var anr = require('afrostream-node-request');
+var request = anr.create();
+request({uri: "https://whatever", filter: anr.filters["200OK"]}).then(...)
 ```

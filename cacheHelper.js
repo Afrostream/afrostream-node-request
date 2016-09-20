@@ -3,10 +3,10 @@ var querystring = require('querystring');
 var _ = require('lodash');
 var Q = require('q');
 
-var assert = require('./assert');
+var myAssert = require('./mylib/my-assert.js');
 
 module.exports.computeCacheKey = function (queryOptions) {
-  assert(queryOptions);
+  myAssert(queryOptions);
 
   var cacheKey = null;
 
@@ -25,9 +25,9 @@ module.exports.computeCacheKey = function (queryOptions) {
 };
 
 module.exports.saveBody = function (queryOptions, cacheKey, body) {
-  assert(queryOptions);
-  assert(cacheKey === null || typeof cacheKey === 'string');
-  assert(!cacheKey || queryOptions.cache.redis);
+  myAssert(queryOptions);
+  myAssert(cacheKey === null || typeof cacheKey === 'string');
+  myAssert(!cacheKey || queryOptions.cache.redis);
 
 
   if (cacheKey) {
@@ -49,9 +49,9 @@ module.exports.saveBody = function (queryOptions, cacheKey, body) {
 };
 
 module.exports.readFromCache = function (queryOptions, cacheKey) {
-  assert(queryOptions);
-  assert(cacheKey === null || typeof cacheKey === 'string');
-  assert(!cacheKey || queryOptions.cache.redis);
+  myAssert(queryOptions);
+  myAssert(cacheKey === null || typeof cacheKey === 'string');
+  myAssert(!cacheKey || queryOptions.cache.redis);
 
   return Q()
     .then(function () {

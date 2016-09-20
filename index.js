@@ -7,29 +7,20 @@ var _ = require('lodash');
 
 var cacheHelper = require('./cacheHelper.js');
 
-var inspect = require('./inspect.js').inspect;
-var inspectFilter = require('./inspect.js').filter;
-
-var omit = require('./omit.js');
+var myInspect = require('./mylib/my-inspect.js').inspect;
+var myInspectFilter = require('./mylib/my-inspect.js').filter;
+var myOmit = require('./mylib/my-omit.js');
 
 var glRequestId = 0;
 
-var defaultFilter = function (data) {
-  var response = data[0]
-    , body = data[1];
-
-  if (response.statusCode !== 200) {
-    console.log('[ERROR]: [AFR-REQUEST]: ' + response.statusCode + ' ' + JSON.stringify(body));
-    var error = new Error(body && body.error || 'unknown');
-    error.statusCode = response.statusCode || 500;
-    throw error;
-  }
-  return data;
+module.exports.filters = {
+  tap: require('./filters/tap.js'),
+  "200OK": require('./filters/200OK.js')
 };
 
 var fwdError = function (err) {
   var error = new Error(err.message);
-  error.statusCode = 500;
+  error.statusCode = err.statusCode || 500;
   throw error;
 };
 
@@ -48,8 +39,8 @@ module.exports.create = function (defaultOptions) {
       'x-forwarded-user-agent': 'x-forwarded-user-agent',
       'Content-Type': 'Content-Type'
     },
-    filter: defaultFilter
-  }, omit(defaultOptions || {}, 'cache.redis'));
+    filter: module.exports.filters["200OK"]
+  }, myOmit(defaultOptions || {}, 'cache.redis'));
 
   console.log('[INFO]: [AFR-REQUEST]: defaultOptions=', JSON.stringify(defaultOptions));
   return function (options) {
@@ -82,7 +73,7 @@ module.exports.create = function (defaultOptions) {
     var inputRedis = inputQueryOptions.cache && inputQueryOptions.cache.redis || null;
     var redis = defaultRedis || inputRedis || null;
 
-    queryOptions = _.merge({}, defaultQueryOptions, computedQueryOptions, omit(inputQueryOptions, 'cache.redis'), rewritedQueryOptions);
+    queryOptions = _.merge({}, defaultQueryOptions, computedQueryOptions, myOmit(inputQueryOptions, 'cache.redis'), rewritedQueryOptions);
     // adding redis to query options
     if (redis) {
       queryOptions.cache.redis = redis;
@@ -90,7 +81,7 @@ module.exports.create = function (defaultOptions) {
     // adding requestId to query options
     queryOptions.requestId = ++glRequestId;
     // adding custom inspectFilter
-    queryOptions.inspect = inspectFilter;
+    queryOptions.inspect = myInspectFilter;
 
     //
     cacheKey = cacheHelper.computeCacheKey(queryOptions);
@@ -99,7 +90,7 @@ module.exports.create = function (defaultOptions) {
     }
 
     // logs
-    console.log('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: ' + inspect(queryOptions));
+    console.log('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: ' + myInspect(queryOptions));
 
     return Q.nfcall(request, queryOptions)
       .then(function (data) {
@@ -111,7 +102,11 @@ module.exports.create = function (defaultOptions) {
         } else {
           console.log('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: response received, http.statusCode=' + response.statusCode);
         }
-        return queryOptions.filter(data);
+        // filtering result
+        if (typeof queryOptions.filter === 'function') {
+          return queryOptions.filter(data)
+        }
+        return data;
       }).then(function (data) {
         var response = data[0]
           , body = data[1];
@@ -122,7 +117,7 @@ module.exports.create = function (defaultOptions) {
           return data;
         }
       , function (err) {
-          console.error('[ERROR]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: ' + err.message + ' for ' + inspect(queryOptions));
+          console.error('[ERROR]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: ' + err.message + ' for ' + myInspect(queryOptions));
           //
           return cacheHelper.readFromCache(queryOptions, cacheKey)
             .then(function (data) {
