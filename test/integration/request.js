@@ -1,6 +1,6 @@
 'use strict';
 
-var request = require('../../index.js');
+var anr = require('../../index.js');
 
 var Q = require('q');
 
@@ -18,11 +18,11 @@ function waitXmsec(x) {
 describe('defaultOptions baseUrl', function () {
   this.timeout(5000);
 
-  var r = request({baseUrl: 'https://afr-api-v1-staging.herokuapp.com'});
+  var request = anr.create({baseUrl: 'https://afr-api-v1-staging.herokuapp.com'});
 
   describe('test computedOptions by passing a relative uri', function () {
     it('should concatenate , call the api, and return a result', function (done) {
-      r({uri:'/alive'}).then(function (data) {
+      request({uri:'/alive'}).then(function (data) {
         assert(Array.isArray(data));
         assert(data[1]);
         assert(data[1].alive === true);
@@ -68,10 +68,10 @@ describe('testing cache', function () {
 
   describe('calling a sub server with some cache', function () {
     it('should trigger cache', function (done) {
-      var r = request();
+      var request = anr.create();
       var uri = 'http://localhost:' + port + '/test?random='+randomText;
       //
-      r({uri: uri, cache: { mode: 'fallback', redis: redisClient }})
+      request({uri: uri, cache: { mode: 'fallback', redis: redisClient }})
         .then(function (result) {
           assert(result);
           assert(result[1]); // body
@@ -95,7 +95,7 @@ describe('testing cache', function () {
         .then(function () { return waitXmsec(500); })
         .then(function () {
           // request again !
-          return r({uri: uri, cache: { mode: 'fallback', redis: redisClient }});
+          return request({uri: uri, cache: { mode: 'fallback', redis: redisClient }});
         })
         .then(function (result) {
           assert(result);

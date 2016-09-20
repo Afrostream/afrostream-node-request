@@ -14,7 +14,7 @@ network error, 3XX, 4XX, 5XX => error
 same usage as request library, but using promise return style
 
 ```js
-var request = require('afrostream-node-request')();
+var request = require('afrostream-node-request').create();
 request("http://google.fr").then(
   function () { },
   function () { }
@@ -24,7 +24,7 @@ request("http://google.fr").then(
 additional features: cache
 
 ```js
-var request = require('afrostream-node-request')();
+var request = require('afrostream-node-request').create();
 request({uri:"http://google.fr", cache: {mode:"fallback",redis:redisClient}}).then(...)
 ```
 
@@ -37,13 +37,13 @@ var defaultQueryOptions = {
   param1: param2,
   ...
 };
-var request = require('afrostream-node-request')(defaultQueryOptions);
+var request = require('afrostream-node-request').create(defaultQueryOptions);
 ```
 
 ## inputQueryOptions
 
 ```js
-var request = require('afrostream-node-request')();
+var request = require('afrostream-node-request').create();
 var inputQueryOptions = { json: true, uri: 'http://whatever' }
 request(inputQueryOptions);
 ```

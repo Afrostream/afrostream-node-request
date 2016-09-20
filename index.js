@@ -33,7 +33,7 @@ var fwdError = function (err) {
   throw error;
 };
 
-module.exports = function (defaultOptions) {
+module.exports.create = function (defaultOptions) {
   // horrible hack, car _.merge() is messing up with redis object :gun:
   //  we omit redis cli & save it in "defaultRedis" custom var.
   var defaultRedis = defaultOptions && defaultOptions.cache && defaultOptions.cache.redis || null;
