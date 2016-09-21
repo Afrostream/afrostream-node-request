@@ -40,7 +40,7 @@ module.exports.create = function (defaultOptions) {
       'Content-Type': 'Content-Type'
     },
     filter: module.exports.filters["200OK"]
-  }, myOmit(defaultOptions || {}, 'cache.redis'));
+  }, myOmit(defaultOptions || {}, ['cache.redis', 'req']]));
 
   console.log('[INFO]: [AFR-REQUEST]: defaultOptions=', JSON.stringify(defaultOptions));
   return function (options) {
@@ -73,7 +73,7 @@ module.exports.create = function (defaultOptions) {
     var inputRedis = inputQueryOptions.cache && inputQueryOptions.cache.redis || null;
     var redis = defaultRedis || inputRedis || null;
 
-    queryOptions = _.merge({}, defaultQueryOptions, computedQueryOptions, myOmit(inputQueryOptions, 'cache.redis'), rewritedQueryOptions);
+    queryOptions = _.merge({}, defaultQueryOptions, computedQueryOptions, myOmit(inputQueryOptions, ['cache.redis', 'req']]), rewritedQueryOptions);
     // adding redis to query options
     if (redis) {
       queryOptions.cache.redis = redis;
