@@ -1,4 +1,4 @@
-function rec(obj, paths, pk) {
+function rec(obj, paths, pk, depth, maxDepth) {
   // debug: console.log('REC : ', pk);
   var result = {};
 
@@ -12,7 +12,11 @@ function rec(obj, paths, pk) {
       }
     }
     if (typeof obj[k] === 'object' && obj[k]) {
-      result[k] = rec(obj[k], paths, ck);
+      if (depth + 1 <= maxDepth) {
+        result[k] = rec(obj[k], paths, ck, depth + 1, maxDepth);
+      } else {
+        result[k] = "<object too deep, max="+maxDepth+">";
+      }
     } else {
       result[k] = obj[k];
     }
@@ -26,8 +30,8 @@ function rec(obj, paths, pk) {
  *
  * FIXME: NON OPTIMISED: iterating on each paths for each key
  */
-module.exports = function (obj, paths) {
+module.exports = function (obj, paths, maxDepth) {
   obj = obj || {};
   paths = ((typeof paths === 'string') ? [paths] : paths) || [];
-  return rec(obj, paths, '');
+  return rec(obj, paths, '', 1, maxDepth || Infinity);
 }
