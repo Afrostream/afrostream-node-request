@@ -90,6 +90,14 @@ module.exports.create = function (defaultOptions) {
     }
 
     // logs
+    if (inputQueryOptions.debug ||
+        inputQueryOptions.qs && inputQueryOptions.qs.DEBUG && inputQueryOptions.qs.DEBUG.indexOf('afrostream-node-request') !== -1) {
+      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: inputQueryOptions ' + util.inspect(inputQueryOptions));
+      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: rewritedQueryOptions ' + util.inspect(rewritedQueryOptions));
+      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: computedQueryOptions ' + util.inspect(computedQueryOptions));
+      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: defaultQueryOptions ' + util.inspect(defaultQueryOptions));
+      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: queryOptions ' + util.inspect(queryOptions));
+    }
     console.log('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: ' + myInspect(queryOptions));
 
     return Q.nfcall(request, queryOptions)
