@@ -44,7 +44,9 @@ module.exports.saveBody = function (queryOptions, cacheKey, body) {
         });
     });
   } else {
-    console.error('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: cannot cache result');
+    if (queryOptions.debug) {
+      console.error('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: no cache active');
+    }
   }
 };
 

@@ -67,6 +67,11 @@ module.exports.create = function (defaultOptions) {
       _.merge(computedQueryOptions, { headers: { Authorization: 'Bearer ' + inputQueryOptions.token } });
     }
 
+    // debug as query string
+    if (inputQueryOptions.qs && inputQueryOptions.qs.DEBUG && inputQueryOptions.qs.DEBUG.indexOf('afrostream-node-request') !== -1) {
+      computedQueryOptions.debug = true;
+    }
+
     // HACK
     var inputRedis = inputQueryOptions.cache && inputQueryOptions.cache.redis || null;
     var redis = defaultRedis || inputRedis || null;
@@ -88,8 +93,7 @@ module.exports.create = function (defaultOptions) {
     }
 
     // logs
-    if (inputQueryOptions.debug ||
-        inputQueryOptions.qs && inputQueryOptions.qs.DEBUG && inputQueryOptions.qs.DEBUG.indexOf('afrostream-node-request') !== -1) {
+    if (queryOptions.debug) {
       console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: inputQueryOptions ' + myInspect(inputQueryOptions));
       console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: rewritedQueryOptions ' + myInspect(rewritedQueryOptions));
       console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: computedQueryOptions ' + myInspect(computedQueryOptions));
