@@ -1,6 +1,6 @@
 {
   "name": "afrostream-node-request",
-  "version": "2.2.4",
+  "version": "2.3.0",
   "description": "wraper around request module, adds cache & fwd functionality",
   "main": "index.js",
   "scripts": {
