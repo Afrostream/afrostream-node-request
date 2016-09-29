@@ -32,9 +32,9 @@ module.exports.create = function (defaultOptions) {
     timeout: 5000,
     forwardedProperty: { userIp: 'x-forwarded-user-ip' }, // params from options.context.req forwarded
     forwardedHeaders: {
-      'User-Agent': 'x-forwarded-user-agent',
+      'x-forwarded-user-agent': 'x-forwarded-user-agent', // first in list taken.
       'x-forwarded-user-ip': 'x-forwarded-user-ip',
-      'x-forwarded-user-agent': 'x-forwarded-user-agent',
+      'User-Agent': 'x-forwarded-user-agent',
       'Content-Type': 'Content-Type'
     },
     filter: module.exports.filters["200OK"]
@@ -44,7 +44,7 @@ module.exports.create = function (defaultOptions) {
   return function (options) {
     var inputQueryOptions = options || {};      // options specific to this call.
     var defaultQueryOptions = defaultOptions;   // json, timeout, ...
-    var computedQueryOptions = {};              // headers forwarded to the backend
+    var computedQueryOptions = { headers: {} }; // headers forwarded to the backend
     var rewritedQueryOptions = {};              // uri
     var queryOptions = {};                      // result
 
@@ -54,13 +54,18 @@ module.exports.create = function (defaultOptions) {
 
     if (inputQueryOptions.context && inputQueryOptions.context.req) {
       // forwardReqParams
-      _.forEach(inputQueryOptions.forwardedProperty, function (paramName, outputHeaderName) {
-        computedQueryOptions.headers[outputHeaderName] = inputQueryOptions.context.req[paramName];
-      });
+      _.forEach(_.merge({}, defaultOptions.forwardedProperty, inputQueryOptions.forwardedProperty),
+        function (outputHeaderName, paramName) {
+          computedQueryOptions.headers[outputHeaderName] = inputQueryOptions.context.req[paramName];
+        }
+      );
       // forwardHeaders
-      _.forEach(inputQueryOptions.forwardedHeaders, function (inputHeaderName, outputHeaderName) {
-        computedQueryOptions.headers[outputHeaderName] = inputQueryOptions.context.req.get(inputHeaderName);
-      });
+      _.forEach(_.merge({}, inputQueryOptions.forwardedHeaders, inputQueryOptions.forwardedHeaders),
+        function (outputHeaderName, inputHeaderName) {
+          // only set if empty.
+          computedQueryOptions.headers[outputHeaderName] = computedQueryOptions.headers[outputHeaderName] || inputQueryOptions.context.req.get(inputHeaderName);
+        }
+      );
     }
 
     if (inputQueryOptions.token) {
