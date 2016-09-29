@@ -122,6 +122,8 @@ var filter = function (data) {
   var response = data[0],
     body = data[1];
 
+  // this <=> queryOptions
+
   if (response.statusCode >= 500 && response.statusCode < 600) {
     throw new Error('5XX statusCode are errors');
   }

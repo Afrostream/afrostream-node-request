@@ -31,23 +31,22 @@ module.exports.saveBody = function (queryOptions, cacheKey, body) {
   myAssert(cacheKey === null || typeof cacheKey === 'string');
   myAssert(!cacheKey || queryOptions.cache.redis);
 
-
   if (cacheKey) {
     // saving async
     setImmediate(function () {
       // saving body result in cache
       var cacheData = JSON.stringify({body: body});
-      log.info('caching ' + cacheData + ' in ' + cacheKey);
+      log.info(queryOptions, 'caching ' + cacheData + ' in ' + cacheKey);
       Q.ninvoke(queryOptions.cache.redis, 'set', cacheKey, cacheData)
         .then(function () {
-          log.info('cache ok');
+          log.info(queryOptions, 'cache ok');
         }, function (redisError) {
-          log.info('cannot cache result: ' + redisError.message);
+          log.info(queryOptions, 'cannot cache result: ' + redisError.message);
         });
     });
   } else {
     if (queryOptions.debug) {
-      log.debug('no cache active');
+      log.debug(queryOptions, 'no cache active');
     }
   }
 };
@@ -62,7 +61,7 @@ module.exports.readFromCache = function (queryOptions, cacheKey) {
       if (!cacheKey) {
         throw new Error('cannot read from cache, no cacheKey => skip');
       }
-      log.info('try to read from cacheKey='+cacheKey);
+      log.info(queryOptions, 'try to read from cacheKey='+cacheKey);
       return Q.ninvoke(queryOptions.cache.redis, 'get', cacheKey);
     })
     .then(function (cacheResult) {

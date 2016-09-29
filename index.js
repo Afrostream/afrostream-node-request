@@ -15,7 +15,8 @@ var glRequestId = 0;
 
 module.exports.filters = {
   tap: require('./filters/tap.js'),
-  "200OK": require('./filters/200OK.js')
+  "200OK": require('./filters/200OK.js'),
+  "200OKNotEmpty": require('./filters/200OKNotEmpty.js')
 };
 
 var fwdError = function (err) {
@@ -106,18 +107,18 @@ module.exports.create = function (defaultOptions) {
     //
     cacheKey = cacheHelper.computeCacheKey(queryOptions);
     if (cacheKey) {
-      log.info('using cache key='+cacheKey);
+      log.info(queryOptions, 'using cache key='+cacheKey);
     }
 
     // logs
     if (queryOptions.debug) {
-      log.debug('inputQueryOptions ' + myInspect(inputQueryOptions));
-      log.debug('rewritedQueryOptions ' + myInspect(rewritedQueryOptions));
-      log.debug('computedQueryOptions ' + myInspect(computedQueryOptions));
-      log.debug('defaultQueryOptions ' + myInspect(defaultQueryOptions));
-      log.debug('queryOptions ' + myInspect(queryOptions));
+      log.debug(queryOptions, 'inputQueryOptions ' + myInspect(inputQueryOptions));
+      log.debug(queryOptions, 'rewritedQueryOptions ' + myInspect(rewritedQueryOptions));
+      log.debug(queryOptions, 'computedQueryOptions ' + myInspect(computedQueryOptions));
+      log.debug(queryOptions, 'defaultQueryOptions ' + myInspect(defaultQueryOptions));
+      log.debug(queryOptions, 'queryOptions ' + myInspect(queryOptions));
     }
-    log.info(myInspect(queryOptions));
+    log.info(queryOptions, myInspect(queryOptions));
 
     return Q.nfcall(request, queryOptions)
       .then(function (data) {
@@ -127,7 +128,7 @@ module.exports.create = function (defaultOptions) {
         if (!response) {
           throw new Error('no response, body = ' + JSON.stringify(body));
         } else {
-          log.info('response received, http.statusCode=' + response.statusCode);
+          log.info(queryOptions, 'response received, http.statusCode=' + response.statusCode);
         }
         // filtering result
         if (typeof queryOptions.filter === 'function') {
@@ -144,15 +145,15 @@ module.exports.create = function (defaultOptions) {
           return data;
         }
       , function (err) {
-          log.error(err.message + ' for ' + myInspect(queryOptions));
+          log.error(queryOptions, err.message + ' for ' + myInspect(queryOptions));
           //
           return cacheHelper.readFromCache(queryOptions, cacheKey)
             .then(function (data) {
-              log.info('response read from cache cacheKey=' + cacheKey);
+              log.info(queryOptions, 'response read from cache cacheKey=' + cacheKey);
               return data;
             },
             function (cacheError) {
-              log.error('cannot read from cache '+ cacheError.message);
+              log.error(queryOptions, 'cannot read from cache '+ cacheError.message);
               fwdError(err); // on forward l'erreur initiale
             });
       });
