@@ -45,7 +45,7 @@ module.exports.create = function (defaultOptions) {
     var inputQueryOptions = options || {};      // options specific to this call.
     var defaultQueryOptions = defaultOptions;   // json, timeout, ...
     var computedQueryOptions = { headers: {} }; // headers forwarded to the backend
-    var rewritedQueryOptions = {};              // uri
+    var rewritedQueryOptions = {};              // uri, timeout
     var queryOptions = {};                      // result
 
     // cacheKey = 'request:GET:http://..../foo/bar?key=val&...'
@@ -75,6 +75,11 @@ module.exports.create = function (defaultOptions) {
     // debug as query string
     if (inputQueryOptions.qs && inputQueryOptions.qs.DEBUG && inputQueryOptions.qs.DEBUG.indexOf('afrostream-node-request') !== -1) {
       computedQueryOptions.debug = true;
+    }
+
+    // timeout = null <=> rewrited to default timeout
+    if (inputQueryOptions.timeout === null) {
+      rewritedQueryOptions.timeout = defaultQueryOptions.timeout;
     }
 
     // HACK

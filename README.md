@@ -69,6 +69,10 @@ wording: options = _.merge({}, defaultQueryOptions, inputQueryOptions)
 options.forwardedHeaders are a { inputHeaderName: outputHeaderName} list of headers  
   forwarded from options.context.req
 
+## options.timeout
+
+if null, timeout will be set with defaultQueryOptions.timeout
+
 ## Cache
 
 ```js
