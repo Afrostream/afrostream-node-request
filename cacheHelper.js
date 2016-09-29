@@ -5,6 +5,8 @@ var Q = require('q');
 
 var myAssert = require('./mylib/my-assert.js');
 
+var log = require('./log.js');
+
 module.exports.computeCacheKey = function (queryOptions) {
   myAssert(queryOptions);
 
@@ -35,17 +37,17 @@ module.exports.saveBody = function (queryOptions, cacheKey, body) {
     setImmediate(function () {
       // saving body result in cache
       var cacheData = JSON.stringify({body: body});
-      console.error('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: caching ' + cacheData + ' in ' + cacheKey);
+      log.info('caching ' + cacheData + ' in ' + cacheKey);
       Q.ninvoke(queryOptions.cache.redis, 'set', cacheKey, cacheData)
         .then(function () {
-          console.error('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: cache ok');
+          log.info('cache ok');
         }, function (redisError) {
-          console.error('[ERROR]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: cannot cache result: ' + redisError.message);
+          log.info('cannot cache result: ' + redisError.message);
         });
     });
   } else {
     if (queryOptions.debug) {
-      console.error('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: no cache active');
+      log.debug('no cache active');
     }
   }
 };
@@ -60,7 +62,7 @@ module.exports.readFromCache = function (queryOptions, cacheKey) {
       if (!cacheKey) {
         throw new Error('cannot read from cache, no cacheKey => skip');
       }
-      console.log('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: try to read from cacheKey='+cacheKey);
+      log.info('try to read from cacheKey='+cacheKey);
       return Q.ninvoke(queryOptions.cache.redis, 'get', cacheKey);
     })
     .then(function (cacheResult) {

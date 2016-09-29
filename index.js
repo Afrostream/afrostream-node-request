@@ -9,6 +9,8 @@ var myInspect = require('./mylib/my-inspect.js').inspect;
 var myInspectFilter = require('./mylib/my-inspect.js').filter;
 var myOmit = require('./mylib/my-omit.js');
 
+var log = require('./log.js');
+
 var glRequestId = 0;
 
 module.exports.filters = {
@@ -27,6 +29,8 @@ module.exports.create = function (defaultOptions) {
   //  we omit redis cli & save it in "defaultRedis" custom var.
   var defaultRedis = defaultOptions && defaultOptions.cache && defaultOptions.cache.redis || null;
   defaultOptions = _.merge({}, {
+    // properties
+    name: 'AFR-REQUEST',     // default name.
     method: 'GET',
     json: true,
     timeout: 5000,
@@ -39,8 +43,9 @@ module.exports.create = function (defaultOptions) {
     },
     filter: module.exports.filters["200OK"]
   }, myOmit(defaultOptions || {}, ['cache.redis', 'req']));
-
-  console.log('[INFO]: [AFR-REQUEST]: defaultOptions=', JSON.stringify(defaultOptions));
+  //
+  log.info(defaultOptions, 'defaultOptions=', JSON.stringify(defaultOptions));
+  //
   return function (options) {
     var inputQueryOptions = options || {};      // options specific to this call.
     var defaultQueryOptions = defaultOptions;   // json, timeout, ...
@@ -88,6 +93,7 @@ module.exports.create = function (defaultOptions) {
 
     // Maximum call stack size exceeded error <=> inputQueryOptions with infinite recursive object
     queryOptions = _.merge({}, defaultQueryOptions, computedQueryOptions, myOmit(inputQueryOptions, ['cache.redis', 'context.req']), rewritedQueryOptions);
+
     // adding redis to query options
     if (redis) {
       queryOptions.cache.redis = redis;
@@ -100,18 +106,18 @@ module.exports.create = function (defaultOptions) {
     //
     cacheKey = cacheHelper.computeCacheKey(queryOptions);
     if (cacheKey) {
-      console.log('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: using cache key='+cacheKey);
+      log.info('using cache key='+cacheKey);
     }
 
     // logs
     if (queryOptions.debug) {
-      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: inputQueryOptions ' + myInspect(inputQueryOptions));
-      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: rewritedQueryOptions ' + myInspect(rewritedQueryOptions));
-      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: computedQueryOptions ' + myInspect(computedQueryOptions));
-      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: defaultQueryOptions ' + myInspect(defaultQueryOptions));
-      console.log('[DEBUG]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: queryOptions ' + myInspect(queryOptions));
+      log.debug('inputQueryOptions ' + myInspect(inputQueryOptions));
+      log.debug('rewritedQueryOptions ' + myInspect(rewritedQueryOptions));
+      log.debug('computedQueryOptions ' + myInspect(computedQueryOptions));
+      log.debug('defaultQueryOptions ' + myInspect(defaultQueryOptions));
+      log.debug('queryOptions ' + myInspect(queryOptions));
     }
-    console.log('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: ' + myInspect(queryOptions));
+    log.info(myInspect(queryOptions));
 
     return Q.nfcall(request, queryOptions)
       .then(function (data) {
@@ -121,7 +127,7 @@ module.exports.create = function (defaultOptions) {
         if (!response) {
           throw new Error('no response, body = ' + JSON.stringify(body));
         } else {
-          console.log('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: response received, http.statusCode=' + response.statusCode);
+          log.info('response received, http.statusCode=' + response.statusCode);
         }
         // filtering result
         if (typeof queryOptions.filter === 'function') {
@@ -138,15 +144,15 @@ module.exports.create = function (defaultOptions) {
           return data;
         }
       , function (err) {
-          console.error('[ERROR]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: ' + err.message + ' for ' + myInspect(queryOptions));
+          log.error(err.message + ' for ' + myInspect(queryOptions));
           //
           return cacheHelper.readFromCache(queryOptions, cacheKey)
             .then(function (data) {
-              console.log('[INFO]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: response read from cache cacheKey=' + cacheKey);
+              log.info('response read from cache cacheKey=' + cacheKey);
               return data;
             },
             function (cacheError) {
-              console.error('[ERROR]: [AFR-REQUEST]: [REQUEST-'+queryOptions.requestId+']: cannot read from cache '+ cacheError.message);
+              log.error('cannot read from cache '+ cacheError.message);
               fwdError(err); // on forward l'erreur initiale
             });
       });
