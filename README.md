@@ -9,6 +9,9 @@ default promise behavior is :
 200OK => success  
 network error, 3XX, 4XX, 5XX => error
 
+/!\ inputQueryOptions doesn't allow objects with circular reference other than context.req & cache.redis
+ (throw error: Maximum call stack size exceeded)
+
 # Usage
 
 same usage as request library, but using promise return style

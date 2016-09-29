@@ -76,7 +76,8 @@ module.exports.create = function (defaultOptions) {
     var inputRedis = inputQueryOptions.cache && inputQueryOptions.cache.redis || null;
     var redis = defaultRedis || inputRedis || null;
 
-    queryOptions = _.merge({}, defaultQueryOptions, computedQueryOptions, myOmit(inputQueryOptions, ['cache.redis', 'req']), rewritedQueryOptions);
+    // Maximum call stack size exceeded error <=> inputQueryOptions with infinite recursive object
+    queryOptions = _.merge({}, defaultQueryOptions, computedQueryOptions, myOmit(inputQueryOptions, ['cache.redis', 'context.req']), rewritedQueryOptions);
     // adding redis to query options
     if (redis) {
       queryOptions.cache.redis = redis;
