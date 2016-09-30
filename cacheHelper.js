@@ -20,7 +20,7 @@ module.exports.computeCacheKey = function (queryOptions) {
     cacheKey = 'request:GET:'+queryOptions.uri;
     if (queryOptions.qs) {
       // ordering query string parameters, to limit cache invalidations
-      cacheKey += '?' + querystring.stringify(_(queryOptions.qs).map((v, k) => [k, v]).sortBy(0).fromPairs().value());
+      cacheKey += '?' + querystring.stringify(_(queryOptions.qs).map(function (v, k) { return [k, v]; }).sortBy(0).fromPairs().value());
     }
   }
   return cacheKey;
