@@ -1,8 +1,8 @@
 function rec(obj, paths, pk, depth, maxDepth) {
   // debug: console.log('REC : ', pk);
-  var result = {};
+  var result;
 
-  Object.keys(obj).forEach(function (k) {
+  var f = function (result, obj, k) {
     var ck = pk + (pk?'.':'') + k;
 
     for (var i = 0; i < paths.length; ++i) {
@@ -11,6 +11,7 @@ function rec(obj, paths, pk, depth, maxDepth) {
         return; // omit
       }
     }
+
     if (typeof obj[k] === 'object' && obj[k]) {
       if (depth + 1 <= maxDepth) {
         result[k] = rec(obj[k], paths, ck, depth + 1, maxDepth);
@@ -20,7 +21,19 @@ function rec(obj, paths, pk, depth, maxDepth) {
     } else {
       result[k] = obj[k];
     }
-  });
+  };
+
+  if (Array.isArray(obj)) {
+    result = [];
+    for (var k = 0; k < obj.length; ++k) {
+      f(result, obj, k)
+    }
+  } else {
+     result = {};
+     Object.keys(obj).forEach(function (k) {
+       f(result, obj, k);
+     });
+  }
   return result;
 }
 

@@ -20,7 +20,8 @@ describe('omit key in object... @#! lodash', function () {
         c: "42342",
         d: { "foo" : "bar"}
       }
-    }
+    },
+    f: [ ]
   };
   describe('testing omit', function () {
     it('should work fgs', function () {
@@ -29,6 +30,7 @@ describe('omit key in object... @#! lodash', function () {
       assert(obis.a === 42);
       assert(obis.c.a === 'nested');
       assert(typeof obis.c.b === 'undefined');
+      assert(Array.isArray(obis.f));
     });
 
     it('should work fgs (2)', function () {
@@ -38,6 +40,7 @@ describe('omit key in object... @#! lodash', function () {
       assert(obis.c.a === 'nested');
       assert(typeof obis.e.a.c === 'undefined');
       assert(obis.e.a.d.foo === 'bar');
+      assert(Array.isArray(obis.f));
     });
   });
 });
