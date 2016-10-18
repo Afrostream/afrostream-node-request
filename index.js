@@ -67,7 +67,7 @@ module.exports.create = function (defaultOptions) {
         }
       );
       // forwardHeaders
-      _.forEach(_.merge({}, inputQueryOptions.forwardedHeaders, inputQueryOptions.forwardedHeaders),
+      _.forEach(_.merge({}, defaultOptions.forwardedHeaders, inputQueryOptions.forwardedHeaders),
         function (outputHeaderName, inputHeaderName) {
           // only set if empty.
           computedQueryOptions.headers[outputHeaderName] = computedQueryOptions.headers[outputHeaderName] || inputQueryOptions.context.req.get(inputHeaderName);
