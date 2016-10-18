@@ -37,6 +37,7 @@ module.exports.create = function (defaultOptions) {
     timeout: 5000,
     forwardedProperty: { userIp: 'x-forwarded-user-ip' }, // params from options.context.req forwarded
     forwardedHeaders: {
+      'cookie': 'cookie',
       'x-forwarded-user-agent': 'x-forwarded-user-agent', // first in list taken.
       'x-forwarded-user-ip': 'x-forwarded-user-ip',
       'User-Agent': 'x-forwarded-user-agent',
