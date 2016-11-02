@@ -8,6 +8,7 @@ var cacheHelper = require('./cacheHelper.js');
 var myInspect = require('./mylib/my-inspect.js').inspect;
 var myInspectFilter = require('./mylib/my-inspect.js').filter;
 var myOmit = require('./mylib/my-omit.js');
+var myToLowerCaseKeys = require('./mylib/my-toLowerCaseKeys');
 
 var log = require('./log.js');
 
@@ -63,20 +64,20 @@ module.exports.create = function (defaultOptions) {
       // forwardReqParams
       _.forEach(_.merge({}, defaultOptions.forwardedProperty, inputQueryOptions.forwardedProperty),
         function (outputHeaderName, paramName) {
-          computedQueryOptions.headers[outputHeaderName] = inputQueryOptions.context.req[paramName];
+          computedQueryOptions.headers[String(outputHeaderName).toLowerCase()] = inputQueryOptions.context.req[paramName];
         }
       );
       // forwardHeaders
-      _.forEach(_.merge({}, defaultOptions.forwardedHeaders, inputQueryOptions.forwardedHeaders),
+      _.forEach(_.merge({}, myToLowerCaseKeys(defaultOptions.forwardedHeaders), myToLowerCaseKeys(inputQueryOptions.forwardedHeaders)),
         function (outputHeaderName, inputHeaderName) {
           // only set if empty.
-          computedQueryOptions.headers[outputHeaderName] = computedQueryOptions.headers[outputHeaderName] || inputQueryOptions.context.req.get(inputHeaderName);
+          computedQueryOptions.headers[String(outputHeaderName).toLowerCase()] = computedQueryOptions.headers[String(outputHeaderName).toLowerCase()] || inputQueryOptions.context.req.get(inputHeaderName);
         }
       );
     }
 
     if (inputQueryOptions.token) {
-      _.merge(computedQueryOptions, { headers: { Authorization: 'Bearer ' + inputQueryOptions.token } });
+      _.merge(computedQueryOptions, { headers: myToLowerCaseKeys({ Authorization: 'Bearer ' + inputQueryOptions.token }) });
     }
 
     // debug as query string
@@ -92,6 +93,12 @@ module.exports.create = function (defaultOptions) {
     // HACK
     var inputRedis = inputQueryOptions.cache && inputQueryOptions.cache.redis || null;
     var redis = defaultRedis || inputRedis || null;
+
+    // lowercasing all headers before merge
+    defaultQueryOptions.headers = myToLowerCaseKeys(defaultQueryOptions.headers);
+    computedQueryOptions.headers = myToLowerCaseKeys(computedQueryOptions.headers);
+    inputQueryOptions.headers = myToLowerCaseKeys(inputQueryOptions.headers);
+    rewritedQueryOptions.headers = myToLowerCaseKeys(rewritedQueryOptions.headers);
 
     // Maximum call stack size exceeded error <=> inputQueryOptions with infinite recursive object
     queryOptions = _.merge({}, defaultQueryOptions, computedQueryOptions, myOmit(inputQueryOptions, ['cache.redis', 'context.req']), rewritedQueryOptions);
