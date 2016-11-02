@@ -128,7 +128,17 @@ module.exports.create = function (defaultOptions) {
     }
     log.info(queryOptions, myInspect(queryOptions));
 
-    return Q.nfcall(request, queryOptions)
+    return Q()
+      .then(function () {
+        // security. Avoid request "str.replace" is not a function...
+        if (queryOptions.headers &&
+            queryOptions.headers['content-type'] &&
+            queryOptions.headers['content-type'] === 'application/x-www-form-urlencoded' &&
+            typeof queryOptions.body !== 'string') {
+          throw new Error('body must be a string when content-type = application/x-www-form-urlencoded')
+        }
+        return Q.nfcall(request, queryOptions)
+      })
       .then(function (data) {
         var response = data[0]
           , body = data[1];
