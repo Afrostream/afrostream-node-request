@@ -137,6 +137,11 @@ module.exports.create = function (defaultOptions) {
             typeof queryOptions.body !== 'string') {
           throw new Error('body must be a string when content-type = application/x-www-form-urlencoded')
         }
+        // security, enforce body is null if method=GET
+        if ((!queryOptions.method || queryOptions.method === 'GET') && queryOptions.body) {
+          log.warn(queryOptions, 'body should be undefined when method=GET => overwriting body');
+          queryOptions.body = undefined;
+        }
         return Q.nfcall(request, queryOptions)
       })
       .then(function (data) {
@@ -150,7 +155,7 @@ module.exports.create = function (defaultOptions) {
         }
         // filtering result
         if (typeof queryOptions.filter === 'function') {
-          return queryOptions.filter(data)
+          return queryOptions.filter(data);
         }
         return data;
       }).then(function (data) {
