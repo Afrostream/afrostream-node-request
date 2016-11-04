@@ -8,6 +8,9 @@ var log = function () {
     case 'ERROR':
       console.error.apply(console, args);
       break;
+    case 'WARNING':
+      console.warn.apply(console, args);
+      break;
     case 'DEBUG':
     case 'INFO':
     default:
@@ -25,6 +28,11 @@ module.exports = {
   info:function () {
     var args = Array.prototype.slice.call(arguments);
     args.unshift('INFO');
+    log.apply(null, args);
+  },
+  warn:function () {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift('WARNING');
     log.apply(null, args);
   },
   error:function () {
